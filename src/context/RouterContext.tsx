@@ -13,7 +13,7 @@ const RouterContext = createContext<RouterContextType | null>(null);
  * Публикация в подкаталоге (например, ni-os.ru/apps/sodeystvie/) не может
  * использовать history.pushState с абсолютными путями — переходим на hash-навигацию.
  */
-const HASH_MODE = import.meta.env.VITE_HASH_ROUTER === '1';
+const HASH_MODE = import.meta.env.VITE_HASH_ROUTER === '1' || import.meta.env.BASE_URL !== '/';
 
 const pathToPage: Record<string, PageId> = {
   '/': 'home',
