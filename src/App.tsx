@@ -7,6 +7,7 @@ import { Footer } from './components/common/Footer';
 import { HeroSection } from './components/sections/HeroSection';
 import { MonumentCareSection } from './components/sections/MonumentCareSection';
 import { MonumentCatalogSection } from './components/sections/MonumentCatalogSection';
+import { WorksGallery } from './components/sections/WorksGallery';
 import { ReviewsSection } from './components/sections/ReviewsSection';
 import { ContactsSection } from './components/sections/ContactsSection';
 import {
@@ -57,6 +58,7 @@ function PageView({ initialIntro }: { initialIntro: boolean }) {
         {currentPage === 'monuments' && (
           <>
             <MonumentCatalogSection />
+            <WorksGallery />
             <Footer />
           </>
         )}

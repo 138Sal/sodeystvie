@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 
 dist-tunnel
+dist-pages
 .venv
 __pycache__
 *.log
