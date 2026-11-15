@@ -9,4 +9,15 @@ export default defineConfig(({ mode }) => ({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('leaflet')) {
+            return 'leaflet'
+          }
+        },
+      },
+    },
+  },
 }))

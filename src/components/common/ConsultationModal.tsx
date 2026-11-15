@@ -1,106 +1,101 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { X } from 'lucide-react';
 import { ConsultationForm } from './ConsultationForm';
 
-interface ConsultationModalProps {
+export interface ConsultationModalProps {
   open: boolean;
   onClose: () => void;
   defaultMessage?: string;
+  triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
 export const ConsultationModal = ({
   open,
   onClose,
   defaultMessage = '',
+  triggerRef,
 }: ConsultationModalProps) => {
-  const reduce = useReducedMotion();
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!open) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
+    if (open) {
+      restoreFocusRef.current = triggerRef?.current ?? (document.activeElement as HTMLElement | null);
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    } else if (dialog.open) {
+      dialog.close();
+      if (restoreFocusRef.current) {
+        restoreFocusRef.current.focus();
+        restoreFocusRef.current = null;
+      }
+    }
+  }, [open, triggerRef]);
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', onKeyDown);
-
-    const focusTimer = window.setTimeout(() => dialogRef.current?.focus(), 60);
-
+  // Clean up if unmounted while open
+  useEffect(() => {
+    const dialog = dialogRef.current;
     return () => {
-      window.clearTimeout(focusTimer);
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
+      if (dialog?.open) {
+        dialog.close();
+      }
     };
-  }, [open, onClose]);
+  }, []);
+
+  const handleCancel = (e: React.SyntheticEvent<HTMLDialogElement, Event>) => {
+    e.preventDefault();
+    onClose();
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) {
+      onClose();
+    }
+  };
+
+  const handleClose = () => {
+    if (open) {
+      onClose();
+    }
+    if (restoreFocusRef.current) {
+      restoreFocusRef.current.focus();
+      restoreFocusRef.current = null;
+    }
+  };
 
   return createPortal(
-    <AnimatePresence>
-      {open ? (
-        <motion.div
-          className="fixed inset-0 z-[95] flex items-end justify-center sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="consultation-modal-title"
+      onCancel={handleCancel}
+      onClick={handleClick}
+      onClose={handleClose}
+      className="m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-[620px] overflow-y-auto overscroll-contain rounded-none border-0 bg-surface p-0 text-paper shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] backdrop:bg-black/70 backdrop:backdrop-blur-sm [overscroll-behavior:contain] focus:outline-none"
+    >
+      <div className="relative px-6 pb-8 pt-11 sm:px-9 sm:pb-10">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Закрыть окно консультации"
+          className="absolute right-3 top-3 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-dim transition-colors hover:text-paper"
         >
-          {/* Backdrop */}
-          <motion.div
-            className="absolute inset-0 bg-ink/85 backdrop-blur-md"
-            onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
+          <X className="h-5 w-5" />
+        </button>
 
-          {/* Dialog Container */}
-          <motion.div
-            ref={dialogRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Оставить заявку координатору"
-            tabIndex={-1}
-            initial={
-              reduce
-                ? { opacity: 0 }
-                : { opacity: 0, y: 32, filter: 'blur(12px)' }
-            }
-            animate={
-              reduce
-                ? { opacity: 1 }
-                : { opacity: 1, y: 0, filter: 'blur(0px)' }
-            }
-            exit={
-              reduce
-                ? { opacity: 0 }
-                : { opacity: 0, y: 16, filter: 'blur(8px)' }
-            }
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative max-h-[90vh] w-full max-w-[620px] overflow-y-auto bg-surface px-6 pb-8 pt-11 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] outline-none sm:px-9 sm:pb-10"
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Закрыть окно"
-              className="absolute right-4 top-4 z-10 p-2 text-dim transition-colors hover:text-paper"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <ConsultationForm
-              onSuccess={onClose}
-              defaultMessage={defaultMessage}
-              source="Окно заявки"
-              compact
-            />
-          </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>,
+        <ConsultationForm
+          onSuccess={onClose}
+          defaultMessage={defaultMessage}
+          source="Окно заявки"
+          titleId="consultation-modal-title"
+          compact
+        />
+      </div>
+    </dialog>,
     document.body
   );
 };

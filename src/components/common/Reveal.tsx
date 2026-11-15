@@ -16,7 +16,7 @@ export const Reveal = ({
   className,
   delay = 0,
   y = 24,
-  blur = 10,
+  blur: _blur,
   duration = 0.75,
   once = true,
 }: RevealProps) => {
@@ -25,18 +25,14 @@ export const Reveal = ({
   return (
     <motion.div
       className={className}
-      initial={
-        reduce
-          ? { opacity: 0 }
-          : { opacity: 0, y, filter: `blur(${blur}px)` }
-      }
-      whileInView={
-        reduce
-          ? { opacity: 1 }
-          : { opacity: 1, y: 0, filter: 'blur(0px)' }
-      }
+      initial={reduce ? { opacity: 1 } : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, margin: '-64px 0px -64px 0px' }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{
+        duration: reduce ? 0 : duration,
+        delay: reduce ? 0 : delay,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
       {children}
     </motion.div>

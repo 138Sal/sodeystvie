@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Phone } from 'lucide-react';
 import { OrthodoxCross } from '../icons/OrthodoxCross';
@@ -20,6 +20,19 @@ export const navItems: NavItem[] = [
 export const Header = () => {
   const { currentPage, navigate } = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen]);
 
   const handleSelect = (page: PageId) => {
     navigate(page);
@@ -50,38 +63,42 @@ export const Header = () => {
             </span>
           </button>
 
-          {/* Desktop tabs */}
+          {/* Desktop navigation */}
           <nav
-            role="tablist"
-            aria-label="Разделы сайта"
-            className="hidden items-center gap-7 xl:flex 2xl:gap-10"
+            aria-label="Основная навигация"
+            className="hidden items-center xl:flex"
           >
-            {navItems.map((item) => {
-              const isActive = currentPage === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => handleSelect(item.id)}
-                  className={`relative px-3 py-2.5 text-[14.5px] transition-colors 2xl:px-4 2xl:text-[16px] ${
-                    isActive
-                      ? 'font-bold text-paper'
-                      : 'font-medium text-mute hover:text-paper'
-                  }`}
-                >
-                  {item.label}
-                  {isActive ? (
-                    <motion.span
-                      layoutId="header-active-tab"
-                      className="absolute inset-x-2 -bottom-[23px] h-[2.5px] bg-paper sm:-bottom-[27px] 2xl:-bottom-[31px]"
-                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                  ) : null}
-                </button>
-              );
-            })}
+            <ul role="list" className="flex items-center gap-7 2xl:gap-10">
+              {navItems.map((item) => {
+                const isActive = currentPage === item.id;
+                return (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSelect(item.id);
+                      }}
+                      className={`relative inline-block px-3 py-2.5 text-[14.5px] transition-colors 2xl:px-4 2xl:text-[16px] ${
+                        isActive
+                          ? 'font-bold text-paper'
+                          : 'font-medium text-mute hover:text-paper'
+                      }`}
+                    >
+                      {item.label}
+                      {isActive ? (
+                        <motion.span
+                          layoutId="header-active-tab"
+                          className="absolute inset-x-2 -bottom-[23px] h-[2.5px] bg-paper sm:-bottom-[27px] 2xl:-bottom-[31px]"
+                          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      ) : null}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           </nav>
 
           {/* Desktop Right Phone */}
@@ -112,6 +129,7 @@ export const Header = () => {
               onClick={() => setMobileOpen((o) => !o)}
               aria-label={mobileOpen ? 'Закрыть меню' : 'Открыть меню'}
               aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation-menu"
               className="flex h-11 w-11 items-center justify-center text-paper transition-opacity hover:opacity-70"
             >
               <span className="relative flex h-3 w-6 flex-col justify-between">
@@ -135,6 +153,7 @@ export const Header = () => {
       <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
+            id="mobile-navigation-menu"
             key="mobile-drawer"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -149,34 +168,41 @@ export const Header = () => {
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="w-full px-5 py-5 sm:px-8"
             >
-              <nav className="flex flex-col">
-                {navItems.map((item, index) => {
-                  const isActive = currentPage === item.id;
-                  return (
-                    <motion.button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleSelect(item.id)}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        duration: 0.28,
-                        delay: 0.04 + index * 0.025,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      className={`flex items-center justify-between border-b border-line-soft py-3.5 text-left text-[16px] transition-colors ${
-                        isActive ? 'font-bold text-paper' : 'text-mute hover:text-paper'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      {isActive ? (
-                        <span className="text-[11px] uppercase tracking-[0.14em] text-dim">
-                          открыто
-                        </span>
-                      ) : null}
-                    </motion.button>
-                  );
-                })}
+              <nav aria-label="Мобильная навигация">
+                <ul role="list" className="flex flex-col">
+                  {navItems.map((item, index) => {
+                    const isActive = currentPage === item.id;
+                    return (
+                      <li key={item.id}>
+                        <motion.a
+                          href={`#${item.id}`}
+                          aria-current={isActive ? 'page' : undefined}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSelect(item.id);
+                          }}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{
+                            duration: 0.28,
+                            delay: 0.04 + index * 0.025,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                          className={`flex items-center justify-between border-b border-line-soft py-3.5 text-left text-[16px] transition-colors ${
+                            isActive ? 'font-bold text-paper' : 'text-mute hover:text-paper'
+                          }`}
+                        >
+                          <span>{item.label}</span>
+                          {isActive ? (
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-dim">
+                              открыто
+                            </span>
+                          ) : null}
+                        </motion.a>
+                      </li>
+                    );
+                  })}
+                </ul>
               </nav>
 
               <div className="mt-5 flex flex-col gap-3 pt-3">

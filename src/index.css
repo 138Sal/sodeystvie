@@ -17,6 +17,14 @@
   --color-dim: #8b939e;
 }
 
+:root {
+  color-scheme: dark;
+  --scrollbar-thumb: #2b3138;
+  --scrollbar-track: var(--color-ink);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
@@ -43,19 +51,21 @@ body {
   color: #fff;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-ink);
-}
-::-webkit-scrollbar-thumb {
-  background: #2b3138;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3a424b;
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2b3138;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a424b;
+  }
 }
 
 :focus-visible {
@@ -170,17 +180,17 @@ section[id] {
 .field {
   width: 100%;
   border: 0;
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1px solid #4a525d;
   background: transparent;
   padding: 0.6rem 0;
   font-family: inherit;
-  font-size: 14px;
+  font-size: max(1rem, 16px);
   color: var(--color-paper);
   transition: border-color 0.2s ease;
 }
 
 .field::placeholder {
-  color: #6c737d;
+  color: #8b939e;
 }
 
 .field:focus {
@@ -193,6 +203,12 @@ section[id] {
   min-height: 96px;
 }
 
+input,
+select,
+textarea {
+  font-size: max(1rem, 16px);
+}
+
 h1,
 h2,
 h3 {
@@ -200,13 +216,18 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    transform: none !important;
+    translate: none !important;
+    rotate: none !important;
+    scale: none !important;
   }
 }
 

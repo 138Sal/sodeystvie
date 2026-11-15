@@ -80,7 +80,12 @@ export const Footer = () => {
                 <span className="ml-2 text-[11px] text-dim">WhatsApp / Telegram</span>
               </div>
               <div className="text-[11.5px] text-dim">
-                sizareva91@gmail.com
+                <a
+                  href="mailto:sizareva91@gmail.com"
+                  className="transition-colors hover:text-paper"
+                >
+                  sizareva91@gmail.com
+                </a>
               </div>
             </div>
           </div>

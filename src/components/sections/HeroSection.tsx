@@ -8,18 +8,18 @@ interface HeroSectionProps {
   initialIntro?: boolean;
 }
 
-export const HeroSection = ({ initialIntro = false }: HeroSectionProps) => {
+export const HeroSection = ({ initialIntro: _initialIntro = false }: HeroSectionProps) => {
   const reduce = useReducedMotion();
   const [modalOpen, setModalOpen] = useState(false);
-  const baseDelay = initialIntro ? 3.05 : 0;
+  const baseDelay = 0;
 
   const enter = (delay: number) => ({
     initial: reduce
       ? { opacity: 0 }
-      : { opacity: 0, y: 18, filter: 'blur(10px)' },
+      : { opacity: 0, y: 18 },
     animate: reduce
       ? { opacity: 1 }
-      : { opacity: 1, y: 0, filter: 'blur(0px)' },
+      : { opacity: 1, y: 0 },
     transition: {
       duration: 0.65,
       delay: reduce ? 0 : delay,
@@ -38,7 +38,10 @@ export const HeroSection = ({ initialIntro = false }: HeroSectionProps) => {
           <img
             src={asset('/images/cemetery-alley.webp')}
             alt=""
-            loading="lazy"
+            width={1500}
+            height={1125}
+            loading="eager"
+            fetchPriority="high"
             decoding="async"
             className="h-full w-full object-cover object-[55%_62%]"
           />
@@ -63,10 +66,10 @@ export const HeroSection = ({ initialIntro = false }: HeroSectionProps) => {
                     key={line}
                     className={`block ${index === 1 ? 'text-dim' : ''}`}
                     initial={
-                      reduce ? { opacity: 0 } : { opacity: 0, y: 24, filter: 'blur(14px)' }
+                      reduce ? { opacity: 0 } : { opacity: 0, y: 24 }
                     }
                     animate={
-                      reduce ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }
+                      reduce ? { opacity: 1 } : { opacity: 1, y: 0 }
                     }
                     transition={{
                       duration: 0.75,
@@ -112,7 +115,7 @@ export const HeroSection = ({ initialIntro = false }: HeroSectionProps) => {
 
           <motion.dl
             {...enter(baseDelay + 0.55)}
-            className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/15 bg-ink/35 py-6 backdrop-blur-[2px] sm:gap-8 lg:grid-cols-4 lg:py-7"
+            className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/15 bg-ink/35 py-6 backdrop-blur-[2px] sm:gap-8 lg:grid-cols-3 lg:py-7"
           >
             <div>
               <dt className="text-[15px] font-bold text-paper sm:text-[17px]">

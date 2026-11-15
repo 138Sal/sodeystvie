@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { OrthodoxCross } from '../icons/OrthodoxCross';
 
 interface IntroPreloaderProps {
@@ -7,24 +7,51 @@ interface IntroPreloaderProps {
 }
 
 export const IntroPreloader: React.FC<IntroPreloaderProps> = ({ onComplete }) => {
+  const reduce = useReducedMotion();
   const [isFinished, setIsFinished] = useState(false);
   const word = 'СОДЕЙСТВИЕ';
 
+  const hasSeen =
+    typeof window !== 'undefined' &&
+    (() => {
+      try {
+        return sessionStorage.getItem('intro_seen') === 'true';
+      } catch {
+        return false;
+      }
+    })();
+
+  const shouldSkip = Boolean(reduce || hasSeen);
+
   useEffect(() => {
+    if (shouldSkip) {
+      onComplete();
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('intro_seen', 'true');
+    } catch {
+      // ignore storage access errors
+    }
+
     const timer = setTimeout(() => {
       setIsFinished(true);
       setTimeout(onComplete, 650);
     }, 2900);
 
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, [onComplete, shouldSkip]);
+
+  if (shouldSkip) {
+    return null;
+  }
 
   const letterVariants = {
-    hidden: { opacity: 0, y: 8, filter: 'blur(12px)' },
+    hidden: { opacity: 0, y: 8 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      filter: 'blur(0px)',
       transition: {
         delay: 0.25 + i * 0.09,
         duration: 0.55,

@@ -1,11 +1,15 @@
-﻿import { Mail, Phone } from 'lucide-react';
+﻿import { lazy, Suspense } from 'react';
+import { Mail, Phone } from 'lucide-react';
 import { WhatsAppIcon, TelegramIcon } from '../icons/MessengerIcons';
-import { ContactsMap } from '../common/ContactsMap';
 import { Reveal } from '../common/Reveal';
 import { PageHero } from '../common/PageHero';
 import { cemeteriesData } from '../../data/content';
 import { ConsultationForm } from '../common/ConsultationForm';
 import { asset } from '../../lib/asset';
+
+const ContactsMap = lazy(() =>
+  import('../common/ContactsMap').then((m) => ({ default: m.ContactsMap })),
+);
 
 const branches = [
   {
@@ -68,7 +72,13 @@ export const ContactsSection = () => {
 
             <div className="mt-6 flex items-center gap-2.5 text-[12.5px] text-dim">
               <Mail className="h-4 w-4" />
-              <span>Почта: sizareva91@gmail.com</span>
+              <span>Почта:</span>
+              <a
+                href="mailto:sizareva91@gmail.com"
+                className="transition-colors hover:text-paper"
+              >
+                sizareva91@gmail.com
+              </a>
             </div>
 
             {/* Branches List */}
@@ -140,7 +150,19 @@ export const ContactsSection = () => {
             </a>
           </div>
           <div className="h-[320px] w-full overflow-hidden border-t border-line sm:h-[400px]">
-            <ContactsMap />
+            <Suspense
+              fallback={
+                <div
+                  className="flex h-full w-full items-center justify-center bg-raise text-[13px] text-dim"
+                  role="status"
+                  aria-label="Загрузка интерактивной карты филиалов"
+                >
+                  <span>Загрузка карты...</span>
+                </div>
+              }
+            >
+              <ContactsMap />
+            </Suspense>
           </div>
         </Reveal>
       </div>

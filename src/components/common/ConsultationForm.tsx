@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Check, CheckCircle2, ChevronDown, Loader2, Phone } from 'lucide-react';
+import { CheckCircle2, ChevronDown, Loader2, Phone } from 'lucide-react';
 import { EnvelopeIcon } from '../icons/EnvelopeIcon';
 import { asset } from '../../lib/asset';
 
@@ -8,6 +8,7 @@ interface ConsultationFormProps {
   defaultMessage?: string;
   compact?: boolean;
   source?: string;
+  titleId?: string;
 }
 
 const ACCESS_KEY = '91d64116-902d-4f85-aeb5-97172e7d6508';
@@ -43,6 +44,7 @@ export const ConsultationForm = ({
   defaultMessage = '',
   compact = false,
   source = 'Сайт',
+  titleId = 'consultation-form-title',
 }: ConsultationFormProps) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -53,30 +55,11 @@ export const ConsultationForm = ({
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [submittedPhone, setSubmittedPhone] = useState('');
-  const [topicOpen, setTopicOpen] = useState(false);
   const phoneRef = useRef<HTMLInputElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
-  const topicRef = useRef<HTMLDivElement>(null);
+  const successHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    if (!topicOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (topicRef.current && !topicRef.current.contains(event.target as Node)) {
-        setTopicOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setTopicOpen(false);
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [topicOpen]);
+  const hasPhoneError = status === 'error' && phone.replace(/\D/g, '').length !== 11;
 
   useEffect(() => {
     if (status === 'error' && errorRef.current) {
@@ -84,11 +67,11 @@ export const ConsultationForm = ({
     }
   }, [status]);
 
-  const moveTopic = (step: number) => {
-    const index = topics.indexOf(topic);
-    const next = (index + step + topics.length) % topics.length;
-    setTopic(topics[next]);
-  };
+  useEffect(() => {
+    if (status === 'success') {
+      successHeadingRef.current?.focus();
+    }
+  }, [status]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -183,7 +166,6 @@ export const ConsultationForm = ({
         setPhone('');
         setEmail('');
         setTopic(topics[0]);
-        setTopicOpen(false);
         setMessage('');
         setConsent(false);
         if (onSuccess) {
@@ -209,7 +191,13 @@ export const ConsultationForm = ({
     return (
       <div className="py-6 sm:py-8" aria-live="polite">
         <CheckCircle2 className="h-10 w-10 text-paper" />
-        <h4 className="mt-3 text-[18px] font-bold text-paper">Заявка принята</h4>
+        <h4
+          ref={successHeadingRef}
+          tabIndex={-1}
+          className="mt-3 text-[18px] font-bold text-paper outline-none"
+        >
+          Заявка принята
+        </h4>
         <p className="mt-2 max-w-[46ch] text-[13.5px] leading-relaxed text-mute">
           Перезвоним{submittedPhone ? ` на ${submittedPhone}` : ''} в течение 15 минут.
           Если вопрос срочный, звоните сами:{' '}
@@ -241,9 +229,14 @@ export const ConsultationForm = ({
       <input type="hidden" name="subject" value="Новая заявка с сайта службы «Содействие»" />
       <input type="hidden" name="from_name" value="Сайт «Содействие»" />
 
+      {/* Persistent live region for screen reader error announcements */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {status === 'error' ? errorMessage : ''}
+      </div>
+
       <div className="mb-5">
         <span className="eyebrow block">Обратная связь</span>
-        <h3 className="mt-1 text-[20px] font-bold text-paper sm:text-[22px]">
+        <h3 id={titleId} className="mt-1 text-[20px] font-bold text-paper sm:text-[22px]">
           Оставить заявку координатору
         </h3>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-dim">
@@ -285,78 +278,44 @@ export const ConsultationForm = ({
               autoComplete="tel"
               maxLength={18}
               value={phone}
-              onChange={(e) => setPhone(formatPhone(e.target.value))}
+              onChange={(e) => {
+                setPhone(formatPhone(e.target.value));
+                if (status === 'error') {
+                  setStatus('idle');
+                  setErrorMessage('');
+                }
+              }}
+              aria-invalid={hasPhoneError}
+              aria-describedby={hasPhoneError ? 'phone-error' : undefined}
               placeholder="+7 (___) ___-__-__"
-              className="field mt-1"
+              className={`field mt-1 ${hasPhoneError ? 'border-red-500/80' : ''}`}
             />
           </div>
         </div>
 
         {/* Topic */}
         <div>
-          <span id="form-topic-label" className="block text-[12px] font-medium text-mute">
+          <label htmlFor="form-topic" className="block text-[12px] font-medium text-mute">
             Тема обращения
-          </span>
-          <div className="relative" ref={topicRef}>
-            <input type="hidden" name="topic" value={topic} />
-            <button
-              type="button"
+          </label>
+          <div className="relative mt-1">
+            <select
               id="form-topic"
-              aria-haspopup="listbox"
-              aria-expanded={topicOpen}
-              aria-labelledby="form-topic-label"
-              onClick={() => setTopicOpen((open) => !open)}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowDown') {
-                  event.preventDefault();
-                  setTopicOpen(true);
-                  moveTopic(1);
-                } else if (event.key === 'ArrowUp') {
-                  event.preventDefault();
-                  setTopicOpen(true);
-                  moveTopic(-1);
-                } else if (event.key === 'Escape') {
-                  setTopicOpen(false);
-                }
-              }}
-              className="field mt-1 flex w-full cursor-pointer items-center justify-between gap-4 pr-0 text-left"
+              name="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="field text-[16px] cursor-pointer appearance-none bg-transparent pr-8"
             >
-              <span>{topic}</span>
-              <ChevronDown
-                className={`h-4 w-4 shrink-0 text-dim transition-transform duration-200 ${
-                  topicOpen ? 'rotate-180' : ''
-                }`}
-                aria-hidden="true"
-              />
-            </button>
-
-            {topicOpen && (
-              <ul
-                role="listbox"
-                aria-labelledby="form-topic-label"
-                className="absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-auto bg-[#16191e] py-1 shadow-[0_18px_44px_rgba(0,0,0,0.65)]"
-              >
-                {topics.map((item) => (
-                  <li key={item} role="option" aria-selected={item === topic}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTopic(item);
-                        setTopicOpen(false);
-                      }}
-                      className={`flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-[13.5px] transition-colors ${
-                        item === topic
-                          ? 'bg-white/[0.06] text-paper'
-                          : 'text-mute hover:bg-white/[0.04] hover:text-paper'
-                      }`}
-                    >
-                      {item}
-                      {item === topic && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+              {topics.map((item) => (
+                <option key={item} value={item} className="bg-surface text-paper">
+                  {item}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-dim"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
@@ -395,34 +354,48 @@ export const ConsultationForm = ({
         </div>
       </div>
 
-      <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-[11.5px] leading-relaxed text-dim">
-        <input
-          type="checkbox"
-          name="consent"
-          value="Да"
-          required
-          checked={consent}
-          onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 h-3.5 w-3.5 shrink-0 cursor-pointer accent-[#edeef0]"
-        />
-        <span>
-          Согласен на обработку персональных данных в соответствии с{' '}
-          <a
-            href={asset('/privacy.html')}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-mute underline decoration-line underline-offset-2 transition-colors hover:text-paper"
-          >
-            политикой конфиденциальности
-          </a>
-        </span>
-      </label>
+      <div className="mt-5 flex items-start gap-3">
+        <div className="flex min-h-[44px] min-w-[44px] items-center justify-center">
+          <input
+            type="checkbox"
+            id="consent"
+            name="consent"
+            value="Да"
+            required
+            checked={consent}
+            onChange={(e) => {
+              setConsent(e.target.checked);
+              if (status === 'error') {
+                setStatus('idle');
+                setErrorMessage('');
+              }
+            }}
+            className="h-5 w-5 shrink-0 cursor-pointer accent-[#edeef0]"
+          />
+        </div>
+        <label
+          htmlFor="consent"
+          className="flex min-h-[44px] cursor-pointer items-center text-[11.5px] leading-relaxed text-dim"
+        >
+          <span>
+            Согласен на обработку персональных данных в соответствии с{' '}
+            <a
+              href={asset('/privacy.html')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-mute underline decoration-line underline-offset-2 transition-colors hover:text-paper"
+            >
+              политикой конфиденциальности
+            </a>
+          </span>
+        </label>
+      </div>
 
       {status === 'error' && (
         <div
+          id="phone-error"
           ref={errorRef}
           className="mt-4 border-l-2 border-paper/40 py-1 pl-3 text-[12.5px] text-mute"
-          aria-live="polite"
         >
           {errorMessage}
         </div>

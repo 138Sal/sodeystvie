@@ -69,9 +69,11 @@ export const WorksGallery = () => {
                   <img
                     src={item.image}
                     alt={item.alt}
+                    width={1400}
+                    height={1050}
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover grayscale transition-[filter,transform] duration-700 ease-out group-hover:scale-[1.015] group-hover:grayscale-[0.82]"
+                    className="h-full w-full scale-100 object-cover grayscale transition-[filter,transform] duration-700 ease-out group-hover:scale-[1.015] group-hover:grayscale-[0.82]"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
                 </div>

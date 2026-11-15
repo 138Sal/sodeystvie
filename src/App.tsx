@@ -24,13 +24,13 @@ function PageView({ initialIntro }: { initialIntro: boolean }) {
   const pageTransition = {
     initial: reduce
       ? { opacity: 0 }
-      : { opacity: 0, y: 14, filter: 'blur(8px)' },
+      : { opacity: 0, y: 14 },
     animate: reduce
       ? { opacity: 1 }
-      : { opacity: 1, y: 0, filter: 'blur(0px)' },
+      : { opacity: 1, y: 0 },
     exit: reduce
       ? { opacity: 0 }
-      : { opacity: 0, y: -10, filter: 'blur(6px)' },
+      : { opacity: 0, y: -10 },
     transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const },
   };
 
@@ -96,7 +96,7 @@ function MainLayout() {
         aria-hidden={!introDone}
       >
         <Header />
-        <main>
+        <main id="main-content">
           <PageView initialIntro={!introDone} />
         </main>
       </div>
