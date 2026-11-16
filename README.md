@@ -99,6 +99,12 @@ access key. Прокси `/api/lead` удалён вместе с локальн
 В настройках репозитория Pages должен быть выбран источник «Deploy from a branch»
 → `gh-pages` → `/ (root)`.
 
+> Сейчас workflow-файлы лежат в `.github/workflows` **локально**: токен,
+> которым пушился код, имеет scope `repo`, но не `workflow`, поэтому GitHub
+> не принимает коммит с ними. Сайт обновлён ручной публикацией `gh-pages`.
+> Чтобы включить автодеплой, добавь `.github/workflows/*.yml` через
+> веб-интерфейс GitHub или токеном со scope `workflow`.
+
 Для Метрики в CI добавьте repository variable `VITE_YM_ID`.
 
 ## Проверки
