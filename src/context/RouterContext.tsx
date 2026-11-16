@@ -1,118 +1,102 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { applySeo } from '../lib/seo';
+import { trackPageView } from '../lib/analytics';
+import {
+  resolveLegacyHash,
+  resolvePage,
+  routeById,
+  type PageId,
+} from '../lib/routes';
 
-export type PageId = 'home' | 'care' | 'monuments' | 'reviews' | 'contacts';
+export type { PageId } from '../lib/routes';
 
 interface RouterContextType {
   currentPage: PageId;
   navigate: (page: PageId) => void;
+  hrefFor: (page: PageId) => string;
 }
 
 const RouterContext = createContext<RouterContextType | null>(null);
 
-/**
- * Публикация в подкаталоге (например, ni-os.ru/apps/sodeystvie/) не может
- * использовать history.pushState с абсолютными путями — переходим на hash-навигацию.
- */
-const HASH_MODE = import.meta.env.VITE_HASH_ROUTER === '1' || import.meta.env.BASE_URL !== '/';
+const BASE = import.meta.env.BASE_URL;
 
-const pathToPage: Record<string, PageId> = {
-  '/': 'home',
-  '': 'home',
-  '/care': 'care',
-  '/monuments': 'monuments',
-  '/reviews': 'reviews',
-  '/contacts': 'contacts',
-  // старые адреса удалённых разделов ведут на главную
-  '/services': 'home',
-  '/calculator': 'home',
-  '/info': 'home',
+const hrefFor = (page: PageId) => {
+  if (page === 'notfound') return `${BASE}404.html`;
+  const path = routeById(page)?.path ?? '';
+  return path ? `${BASE}${path}/` : BASE;
 };
 
-const hashToPage: Record<string, PageId> = {
-  '#home': 'home',
-  '#care': 'care',
-  '#monuments': 'monuments',
-  '#reviews': 'reviews',
-  '#contacts': 'contacts',
-  // backward-compat hashes
-  '#monument-care': 'care',
-  '#services': 'home',
-  '#calculator': 'home',
-  '#info': 'home',
-  '#articles': 'home',
-};
-
-const pageToPath: Record<PageId, string> = {
-  home: '/',
-  care: '/care',
-  monuments: '/monuments',
-  reviews: '/reviews',
-  contacts: '/contacts',
-};
-
-const resolveInitialPage = (): PageId => {
-  if (typeof window === 'undefined') return 'home';
-
-  const hash = window.location.hash.toLowerCase();
-  if (hash && hashToPage[hash]) return hashToPage[hash];
-
-  const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
-  if (pathToPage[pathname]) return pathToPage[pathname];
-
-  return 'home';
+const currentPageFromLocation = (): PageId => {
+  const legacy = resolveLegacyHash(window.location.hash);
+  if (legacy) return legacy;
+  return resolvePage(window.location.pathname, BASE);
 };
 
 export const RouterProvider = ({ children }: { children: ReactNode }) => {
-  const [currentPage, setCurrentPage] = useState<PageId>(resolveInitialPage);
-
-  const navigate = (page: PageId) => {
-    setCurrentPage(page);
-
-    if (HASH_MODE) {
-      const targetHash = `#${page}`;
-      if (window.location.hash !== targetHash) {
-        window.history.pushState(
-          null,
-          '',
-          `${window.location.pathname}${window.location.search}${targetHash}`
-        );
-      }
-    } else {
-      const targetPath = pageToPath[page];
-      if (window.location.pathname !== targetPath) {
-        window.history.pushState(null, '', targetPath);
-      }
-    }
-
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
+  const [currentPage, setCurrentPage] = useState<PageId>(currentPageFromLocation);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    const handlePopState = () => {
-      const page = resolveInitialPage();
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    };
+    applySeo(currentPage);
+    trackPageView(window.location.href, document.title);
 
+    const canonical = hrefFor(currentPage);
+    const current = `${window.location.pathname}${window.location.hash}`;
+    const legacyHash = resolveLegacyHash(window.location.hash);
+    const shouldCanonicalize =
+      current !== canonical && (!window.location.hash || Boolean(legacyHash));
+    if (shouldCanonicalize) {
+      window.history.replaceState(null, '', canonical);
+    }
+
+    if (!isFirstRender.current) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      const announcer = document.getElementById('route-announcer');
+      if (announcer) announcer.textContent = `Открыта страница: ${document.title}`;
+      requestAnimationFrame(() => {
+        const heading = document.querySelector<HTMLElement>('main h1');
+        if (!heading) return;
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      });
+    }
+    isFirstRender.current = false;
+  }, [currentPage]);
+
+  useEffect(() => {
+    const handlePopState = () => setCurrentPage(currentPageFromLocation());
     window.addEventListener('popstate', handlePopState);
-    window.addEventListener('hashchange', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('hashchange', handlePopState);
-    };
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = useCallback((page: PageId) => {
+    setCurrentPage(page);
+    const target = hrefFor(page);
+    if (`${window.location.pathname}${window.location.hash}` !== target) {
+      window.history.pushState(null, '', target);
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
   return (
-    <RouterContext.Provider value={{ currentPage, navigate }}>
+    <RouterContext.Provider value={{ currentPage, navigate, hrefFor }}>
       {children}
     </RouterContext.Provider>
   );
 };
 
 export const useRouter = () => {
-  const ctx = useContext(RouterContext);
-  if (!ctx) {
+  const context = useContext(RouterContext);
+  if (!context) {
     throw new Error('useRouter must be used within a RouterProvider');
   }
-  return ctx;
+  return context;
 };

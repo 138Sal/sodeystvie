@@ -72,6 +72,7 @@ export const ConsultationModal = ({
     <dialog
       ref={dialogRef}
       aria-labelledby="consultation-modal-title"
+      aria-label="Заявка на консультацию"
       onCancel={handleCancel}
       onClick={handleClick}
       onClose={handleClose}

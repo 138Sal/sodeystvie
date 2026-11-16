@@ -1,0 +1,23 @@
+{
+  "name": "Ритуальная служба «Содействие»",
+  "shortName": "Содействие",
+  "tagline": "Челябинск и вся Россия",
+  "siteUrl": "https://138sal.github.io/sodeystvie",
+  "phone": "+7 (951) 776-77-47",
+  "phoneHref": "+79517767747",
+  "email": "sizareva91@gmail.com",
+  "address": "ул. 50-летия ВЛКСМ, 22",
+  "addressFull": "454000, г. Челябинск, ул. 50-летия ВЛКСМ, 22",
+  "hours": "ежедневно 10:00–17:00",
+  "priceFrom": "100 000",
+  "geo": {
+    "lat": 55.191832,
+    "lng": 61.380536
+  },
+  "social": {
+    "whatsapp": "https://wa.me/79517767747",
+    "telegram": "https://t.me/+79517767747",
+    "twoGis": "https://2gis.ru/chelyabinsk/firm/70000001050257504",
+    "yandex": "https://yandex.ru/maps/org/sodeystviye/37835829525/"
+  }
+}

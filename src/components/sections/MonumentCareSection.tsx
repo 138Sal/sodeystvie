@@ -1,8 +1,9 @@
-﻿import { Phone } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { monumentCareData } from '../../data/content';
 import { Reveal } from '../common/Reveal';
 import { PageHero } from '../common/PageHero';
-import { asset } from '../../lib/asset';
+import { Picture } from '../common/Picture';
+import { siteConfig } from '../../data/site';
 
 export const MonumentCareSection = () => {
   return (
@@ -10,8 +11,8 @@ export const MonumentCareSection = () => {
       <PageHero
         eyebrow="01 — Благоустройство"
         title="Благоустройство захоронений и монтаж памятников"
-        description="Проводим строительные, гранитные и реставрационные работы на всех кладбищах Челябинска: Успенском, Митрофановском, Градском, Преображенском, Фатеевском и Новосинеглазовском."
-        image={asset('/images/alley-fog.webp')}
+        description="Проводим строительные, гранитные и реставрационные работы на всех кладбищах Челябинска: Успенском, Митрофановском, Градском, Преображенском, Фатеевском и Новосинеглазовском. Работаем по всей России."
+        image="alley-fog"
         imageAlt="Тихая аллея кладбища в тумане"
         position="object-[50%_45%]"
       />
@@ -21,14 +22,14 @@ export const MonumentCareSection = () => {
           <div className="grid grid-cols-1 gap-x-14 gap-y-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-7">
               <div className="relative aspect-[16/10] overflow-hidden bg-raise">
-                <img
-                  src={asset('/images/fence-granite.webp')}
+                <Picture
+                  name="fence-granite"
                   alt="Гранитный столб с кованой цепью на участке"
-                  loading="lazy" decoding="async"
+                  sizes="(min-width: 1024px) 58vw, 92vw"
                   className="h-full w-full object-cover grayscale"
                 />
               </div>
-              <div className="mt-3 flex flex-wrap justify-between gap-2 text-[11.5px] text-dim">
+              <div className="mt-3 flex flex-wrap justify-between gap-2 text-[12.5px] text-dim">
                 <span>Ограждение участка: гранит и антикоррозийная ковка</span>
                 <span>Фото: пример выполненной работы</span>
               </div>
@@ -44,13 +45,12 @@ export const MonumentCareSection = () => {
                 высот, подберём материал и составим точную смету. Все этапы — в договоре.
               </p>
               <div className="mt-6 border-l border-line pl-5">
-                <p className="text-[13px] leading-relaxed text-mute">
+                <p className="text-[13.5px] leading-relaxed text-mute">
                   <span className="font-semibold text-paper">Гарантия 3 года</span> на
-                  устойчивость стел и монтаж. Работаем с 1998 года на всех кладбищах
-                  города и пригорода.
+                  устойчивость стел и монтаж. Работаем в Челябинске и по всей России.
                 </p>
               </div>
-              <a href="tel:+79517767747" className="action mt-7 inline-flex">
+              <a href={`tel:${siteConfig.phoneHref}`} className="action mt-7 inline-flex">
                 <Phone className="h-4 w-4" />
                 Заказать замер
               </a>
@@ -69,12 +69,12 @@ export const MonumentCareSection = () => {
                       {item.title}
                     </h3>
                   </div>
-                  <p className="max-w-[58ch] text-[13.5px] leading-relaxed text-mute md:col-span-5">
+                  <p className="max-w-[58ch] text-[14px] leading-relaxed text-mute md:col-span-5">
                     {item.description}
                   </p>
                   <div className="md:col-span-3 md:text-right">
                     <div className="text-[14px] font-semibold text-paper">{item.price}</div>
-                    <div className="mt-0.5 text-[12px] text-dim">{item.duration}</div>
+                    <div className="mt-0.5 text-[12.5px] text-dim">{item.duration}</div>
                   </div>
                 </div>
               </Reveal>
@@ -85,14 +85,14 @@ export const MonumentCareSection = () => {
             <Reveal y={16} blur={7}>
               <figure>
                 <div className="relative aspect-[16/10] overflow-hidden bg-raise">
-                  <img
-                    src={asset('/images/monument-premium.webp')}
+                  <Picture
+                    name="monument-premium"
                     alt="Гранитная ваза и декоративные элементы мемориала"
-                    loading="lazy" decoding="async"
+                    sizes="(min-width: 640px) 45vw, 92vw"
                     className="h-full w-full object-cover grayscale"
                   />
                 </div>
-                <figcaption className="mt-3 text-[12.5px] text-dim">
+                <figcaption className="mt-3 text-[13px] text-dim">
                   Декоративные элементы: вазы, лампады, гранитные цветники
                 </figcaption>
               </figure>
@@ -100,14 +100,14 @@ export const MonumentCareSection = () => {
             <Reveal y={16} blur={7} delay={0.08}>
               <figure>
                 <div className="relative aspect-[16/10] overflow-hidden bg-raise">
-                  <img
-                    src={asset('/images/monument-family.webp')}
+                  <Picture
+                    name="monument-family"
                     alt="Семейный гранитный памятник"
-                    loading="lazy" decoding="async"
+                    sizes="(min-width: 640px) 45vw, 92vw"
                     className="h-full w-full object-cover object-[50%_35%] grayscale"
                   />
                 </div>
-                <figcaption className="mt-3 text-[12.5px] text-dim">
+                <figcaption className="mt-3 text-[13px] text-dim">
                   Семейные стелы: единый ансамбль, общий цветник и подставка
                 </figcaption>
               </figure>

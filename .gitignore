@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Локальные секреты и исходники фото до обработки
+.env
+.env.local
+photos-to-blur/
+
+# Генерируется из assets-src скриптом npm run images
+public/images/
+public/og-image.jpg
+public/apple-touch-icon.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

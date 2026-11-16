@@ -1,18 +1,20 @@
 {
   "name": "sodeystvie-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:tunnel": "tsc -b && vite build --mode tunnel --outDir dist-tunnel",
+    "images": "node scripts/images.mjs",
+    "build": "npm run images && tsc -b && vite build && node scripts/prerender.mjs",
+    "build:spa": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "oxlint",
+    "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
     "clsx": "^2.1.1",
-    "leaflet": "^1.9.4",
     "lucide-react": "^1.70.0",
     "motion": "^14.11.1",
     "react": "^19.3.1",
@@ -21,14 +23,16 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
-    "@types/leaflet": "^1.9.22",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
+    "puppeteer-core": "^25.17.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
   }
 }

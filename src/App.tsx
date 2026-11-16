@@ -1,15 +1,16 @@
-import { useState, useCallback } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { RouterProvider, useRouter } from './context/RouterContext';
 import { IntroPreloader } from './components/animations/IntroPreloader';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { HeroSection } from './components/sections/HeroSection';
+import { FuneralSection } from './components/sections/FuneralSection';
 import { MonumentCareSection } from './components/sections/MonumentCareSection';
 import { MonumentCatalogSection } from './components/sections/MonumentCatalogSection';
 import { WorksGallery } from './components/sections/WorksGallery';
 import { ReviewsSection } from './components/sections/ReviewsSection';
 import { ContactsSection } from './components/sections/ContactsSection';
+import { NotFoundSection } from './components/sections/NotFoundSection';
 import {
   HomeIntro,
   HomeDirections,
@@ -17,89 +18,84 @@ import {
   HomeCta,
 } from './components/sections/HomeSections';
 
-function PageView({ initialIntro }: { initialIntro: boolean }) {
+function PageView() {
   const { currentPage } = useRouter();
   const reduce = useReducedMotion();
 
   const pageTransition = {
-    initial: reduce
-      ? { opacity: 0 }
-      : { opacity: 0, y: 14 },
-    animate: reduce
-      ? { opacity: 1 }
-      : { opacity: 1, y: 0 },
-    exit: reduce
-      ? { opacity: 0 }
-      : { opacity: 0, y: -10 },
+    initial: reduce ? { opacity: 1 } : { opacity: 0, y: 12 },
+    animate: reduce ? { opacity: 1 } : { opacity: 1, y: 0 },
     transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const },
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div key={currentPage} {...pageTransition} className="min-h-[calc(100vh-88px)]">
-        {currentPage === 'home' && (
-          <>
-            <HeroSection initialIntro={initialIntro} />
-            <HomeIntro />
-            <HomeDirections />
-            <HomeMonuments />
-            <HomeCta />
-            <Footer />
-          </>
-        )}
+    <motion.div key={currentPage} {...pageTransition}>
+      {currentPage === 'home' && (
+        <>
+          <HeroSection />
+          <HomeIntro />
+          <HomeDirections />
+          <HomeMonuments />
+          <HomeCta />
+          <Footer />
+        </>
+      )}
 
-        {currentPage === 'care' && (
-          <>
-            <MonumentCareSection />
-            <Footer />
-          </>
-        )}
+      {currentPage === 'funerals' && (
+        <>
+          <FuneralSection />
+          <Footer />
+        </>
+      )}
 
-        {currentPage === 'monuments' && (
-          <>
-            <MonumentCatalogSection />
-            <WorksGallery />
-            <Footer />
-          </>
-        )}
+      {currentPage === 'care' && (
+        <>
+          <MonumentCareSection />
+          <Footer />
+        </>
+      )}
 
-        {currentPage === 'reviews' && (
-          <>
-            <ReviewsSection />
-            <Footer />
-          </>
-        )}
+      {currentPage === 'monuments' && (
+        <>
+          <MonumentCatalogSection />
+          <WorksGallery />
+          <Footer />
+        </>
+      )}
 
-        {currentPage === 'contacts' && (
-          <>
-            <ContactsSection />
-            <Footer />
-          </>
-        )}
-      </motion.div>
-    </AnimatePresence>
+      {currentPage === 'reviews' && (
+        <>
+          <ReviewsSection />
+          <Footer />
+        </>
+      )}
+
+      {currentPage === 'contacts' && (
+        <>
+          <ContactsSection />
+          <Footer />
+        </>
+      )}
+
+      {currentPage === 'notfound' && (
+        <>
+          <NotFoundSection />
+          <Footer />
+        </>
+      )}
+    </motion.div>
   );
 }
 
 function MainLayout() {
-  const [introDone, setIntroDone] = useState(false);
-  const handleIntroComplete = useCallback(() => setIntroDone(true), []);
-
   return (
     <>
-      <IntroPreloader onComplete={handleIntroComplete} />
-
-      <div
-        className={`min-h-screen transition-all duration-700 ${
-          introDone ? 'opacity-100' : 'opacity-0 blur-[10px]'
-        }`}
-        aria-hidden={!introDone}
-      >
-        <Header />
-        <main id="main-content">
-          <PageView initialIntro={!introDone} />
-        </main>
-      </div>
+      <IntroPreloader />
+      <Header />
+      <main id="main-content">
+        <PageView />
+      </main>
+      <div aria-live="polite" className="sr-only" id="route-announcer" />
     </>
   );
 }

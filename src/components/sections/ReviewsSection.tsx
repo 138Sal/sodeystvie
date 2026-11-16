@@ -3,20 +3,19 @@ import { ArrowUpRight, ExternalLink, Star } from 'lucide-react';
 import { platformsData, reviewsData } from '../../data/content';
 import { Reveal } from '../common/Reveal';
 import { PageHero } from '../common/PageHero';
-import { asset } from '../../lib/asset';
 
 type PlatformFilter = 'all' | 'yandex' | '2gis';
 
 const stats = [
   {
-    value: '5.0 / 5',
+    value: `${platformsData.twoGis.rating} / 5`,
     label: 'Рейтинг в 2ГИС',
-    description: '41 подтверждённая оценка жителей Челябинска.',
+    description: `${platformsData.twoGis.reviewsCount} подтверждённая оценка жителей Челябинска.`,
   },
   {
-    value: '4.9 / 5',
+    value: `${platformsData.yandex.rating} / 5`,
     label: 'Рейтинг на Яндекс.Картах',
-    description: '37 проверенных оценок реальных семей.',
+    description: `${platformsData.yandex.reviewsCount} проверенных оценок реальных семей.`,
   },
 ];
 
@@ -32,10 +31,10 @@ export const ReviewsSection = () => {
   return (
     <>
       <PageHero
-        eyebrow="05 — Отзывы"
+        eyebrow="04 — Отзывы"
         title="Отзывы о службе"
         description="Реальные отзывы жителей Челябинска на независимых площадках. Публикуем без исправлений — всё откровенно и открыто."
-        image={asset('/images/flowers.webp')}
+        image="flowers"
         imageAlt="Белые хризантемы"
         position="object-[50%_45%]"
       />
@@ -92,11 +91,6 @@ export const ReviewsSection = () => {
                 </a>
               </div>
             </div>
-
-            <p className="mt-4 text-[14px] leading-relaxed text-mute">
-              Реальные отзывы жителей Челябинска на независимых площадках. Публикуем без
-              исправлений — всё откровенно и открыто.
-            </p>
           </Reveal>
 
         {/* Clean Filter Tabs + Action Buttons */}
@@ -213,7 +207,7 @@ export const ReviewsSection = () => {
         {/* Trust Stats */}
         <div className="mt-16 border-t border-line pt-12">
           <Reveal>
-            <span className="eyebrow">Принципы службы</span>
+            <span className="eyebrow">Рейтинги</span>
             <h2 className="mt-3 text-[24px] font-bold text-paper">
               Почему нам доверяют в скорбный час
             </h2>

@@ -1,23 +1,14 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// Обычная сборка живёт в корне домена, публикация через Nios Apps — в подкаталоге.
-export default defineConfig(({ mode }) => ({
-  base: mode === 'tunnel' ? '/apps/sodeystvie/' : '/',
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('leaflet')) {
-            return 'leaflet'
-          }
-        },
-      },
-    },
-  },
-}))
+// Базовый путь берётся из .env.production (GitHub Pages: /sodeystvie/).
+// Для корневого домена задайте VITE_BASE=/ при сборке.
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
+  return {
+    base: env.VITE_BASE || '/',
+    plugins: [react(), tailwindcss()],
+  }
+})

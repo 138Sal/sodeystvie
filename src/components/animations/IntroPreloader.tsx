@@ -1,98 +1,59 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { OrthodoxCross } from '../icons/OrthodoxCross';
 
-interface IntroPreloaderProps {
-  onComplete: () => void;
-}
-
-export const IntroPreloader: React.FC<IntroPreloaderProps> = ({ onComplete }) => {
-  const reduce = useReducedMotion();
-  const [isFinished, setIsFinished] = useState(false);
-  const word = 'СОДЕЙСТВИЕ';
-
-  const hasSeen =
-    typeof window !== 'undefined' &&
-    (() => {
-      try {
-        return sessionStorage.getItem('intro_seen') === 'true';
-      } catch {
-        return false;
-      }
-    })();
-
-  const shouldSkip = Boolean(reduce || hasSeen);
+/**
+ * Короткая заставка: только затемнение на 0,7 с, контент под ней уже отрисован.
+ * Навязчивое интро на 3,5 с раньше задерживало LCP и раздражало.
+ */
+export const IntroPreloader = () => {
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    try {
+      return sessionStorage.getItem('intro_seen') !== 'true';
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
-    if (shouldSkip) {
-      onComplete();
-      return;
-    }
-
+    if (!visible) return;
     try {
       sessionStorage.setItem('intro_seen', 'true');
     } catch {
-      // ignore storage access errors
+      // приватный режим — просто показываем один раз
     }
-
-    const timer = setTimeout(() => {
-      setIsFinished(true);
-      setTimeout(onComplete, 650);
-    }, 2900);
-
-    return () => clearTimeout(timer);
-  }, [onComplete, shouldSkip]);
-
-  if (shouldSkip) {
-    return null;
-  }
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: 0.25 + i * 0.09,
-        duration: 0.55,
-        ease: [0.16, 1, 0.3, 1] as const,
-      },
-    }),
-  };
+    const timer = window.setTimeout(() => setVisible(false), 700);
+    return () => window.clearTimeout(timer);
+  }, [visible]);
 
   return (
     <AnimatePresence>
-      {!isFinished && (
+      {visible && (
         <motion.div
-          key="preloader"
+          key="intro"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
-          className="fixed inset-0 z-[100] flex select-none flex-col items-center justify-center overflow-hidden bg-ink px-5"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[100] flex select-none flex-col items-center justify-center bg-ink"
         >
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className="mb-8"
+            animate={{ opacity: 0.5 }}
+            transition={{ duration: 0.5 }}
           >
-            <OrthodoxCross className="h-12 w-12 text-paper" />
+            <OrthodoxCross className="h-10 w-10 text-paper" />
           </motion.div>
-
-          <div className="flex items-center justify-center gap-[0.02em] whitespace-nowrap">
-            {word.split('').map((letter, index) => (
-              <motion.span
-                key={index}
-                custom={index}
-                variants={letterVariants}
-                initial="hidden"
-                animate="visible"
-                className="church inline-block text-paper text-[clamp(26px,8.4vw,88px)] leading-none"
-                style={{ letterSpacing: '0.06em' }}
-              >
-                {letter}
-              </motion.span>
-            ))}
-          </div>
+          <motion.span
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="church mt-5 text-[clamp(24px,7vw,52px)] leading-[1.1] tracking-[0.06em] text-paper"
+          >
+            СОДЕЙСТВИЕ
+          </motion.span>
         </motion.div>
       )}
     </AnimatePresence>

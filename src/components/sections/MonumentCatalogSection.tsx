@@ -1,24 +1,26 @@
-﻿import { ArrowUpRight, Phone } from 'lucide-react';
+import { ArrowUpRight, Phone } from 'lucide-react';
 import { monumentsData } from '../../data/content';
 import { Reveal } from '../common/Reveal';
 import { PageHero } from '../common/PageHero';
-import { asset } from '../../lib/asset';
+import { Picture } from '../common/Picture';
+import { siteConfig } from '../../data/site';
+import type { ImageName } from '../../data/images.generated';
 
-const examples = [
+const examples: { image: ImageName; alt: string; caption: string; position: string }[] = [
   {
-    image: asset('/images/monument-family.webp'),
+    image: 'monument-family',
     alt: 'Семейный памятник на два портрета',
     caption: 'Семейная стела, габбро-диабаз',
     position: 'object-[50%_35%]',
   },
   {
-    image: asset('/images/monument-premium.webp'),
+    image: 'monument-premium',
     alt: 'Гранитная ваза в составе мемориала',
     caption: 'Элементы премиум-мемориала',
     position: 'object-center',
   },
   {
-    image: asset('/images/fence-granite.webp'),
+    image: 'fence-granite',
     alt: 'Гранитный столб с кованой цепью',
     caption: 'Ограждение участка, гранит и ковка',
     position: 'object-center',
@@ -32,7 +34,7 @@ export const MonumentCatalogSection = () => {
         eyebrow="03 — Памятники"
         title="Изготовление памятников из гранита и мрамора"
         description="Работаем с натуральным камнем: карельским габбро-диабазом первой категории и уфалейским мрамором. Круговая полировка пяти сторон, доставка и монтаж по всем кладбищам Челябинска и области."
-        image={asset('/images/monument-cross.webp')}
+        image="monument-cross"
         imageAlt="Гранитный памятник с крестом на кладбище"
         position="object-[55%_45%]"
       />
@@ -40,30 +42,29 @@ export const MonumentCatalogSection = () => {
       <section id="monuments" className="py-14 sm:py-16 lg:py-20">
         <div className="wrap">
           <div className="grid grid-cols-1 gap-x-14 gap-y-12 lg:grid-cols-12">
-            {/* Sticky photographic reference */}
             <Reveal className="lg:col-span-5">
               <div className="lg:sticky lg:top-28">
                 <div className="relative aspect-[4/5] overflow-hidden bg-raise">
-                  <img
-                    src={asset('/images/monument-premium.webp')}
+                  <Picture
+                    name="monument-premium"
                     alt="Гранитный мемориал крупным планом"
-                    loading="lazy" decoding="async"
+                    sizes="(min-width: 1024px) 42vw, 92vw"
                     className="h-full w-full object-cover grayscale"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-                  <span className="absolute bottom-4 left-4 text-[10.5px] uppercase tracking-[0.16em] text-paper/80">
+                  <span className="absolute bottom-4 left-4 text-[11.5px] uppercase tracking-[0.16em] text-paper/80">
                     Карельский габбро-диабаз
                   </span>
                 </div>
 
                 <div className="mt-5 border-l border-line pl-5">
-                  <p className="text-[13px] leading-relaxed text-mute">
+                  <p className="text-[13.5px] leading-relaxed text-mute">
                     Бесплатный 3D-макет с портретом и гравировкой до начала работ.
                     Показываем образцы камня и согласовываем каждую деталь.
                   </p>
                   <a
-                    href="tel:+79517767747"
-                    className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-paper"
+                    href={`tel:${siteConfig.phoneHref}`}
+                    className="mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-paper"
                   >
                     <Phone className="h-4 w-4 text-dim" />
                     Обсудить проект
@@ -72,12 +73,13 @@ export const MonumentCatalogSection = () => {
               </div>
             </Reveal>
 
-            {/* Price list */}
             <div className="lg:col-span-7">
               <Reveal>
-                <div className="flex items-baseline justify-between gap-4 border-b border-paper/30 pb-4">
-                  <span className="eyebrow">Каталог и цены</span>
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-dim">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b border-paper/30 pb-4">
+                  <h2 className="text-[22px] font-bold tracking-tight text-paper sm:text-[26px]">
+                    Каталог и цены
+                  </h2>
+                  <span className="text-[11.5px] uppercase tracking-[0.14em] text-dim">
                     Стела + тумба + цветник
                   </span>
                 </div>
@@ -90,10 +92,10 @@ export const MonumentCatalogSection = () => {
                       <h3 className="text-[17px] font-semibold leading-snug text-paper">
                         {item.category}
                       </h3>
-                      <div className="mt-1.5 text-[12px] uppercase tracking-[0.08em] text-dim">
+                      <div className="mt-1.5 text-[12.5px] uppercase tracking-[0.08em] text-dim">
                         {item.material} · {item.size}
                       </div>
-                      <p className="mt-3 max-w-[52ch] text-[13px] leading-relaxed text-mute">
+                      <p className="mt-3 max-w-[52ch] text-[13.5px] leading-relaxed text-mute">
                         {item.description}
                       </p>
                     </div>
@@ -107,7 +109,7 @@ export const MonumentCatalogSection = () => {
                         <span className="text-[14px] text-dim">₽</span>
                       </div>
                       <a
-                        href="tel:+79517767747"
+                        href={`tel:${siteConfig.phoneHref}`}
                         className="action action--sm mt-4 inline-flex sm:ml-auto"
                       >
                         Заказать
@@ -119,7 +121,7 @@ export const MonumentCatalogSection = () => {
               ))}
 
               <Reveal className="mt-6">
-                <p className="text-[11.5px] leading-relaxed text-dim">
+                <p className="text-[12.5px] leading-relaxed text-dim">
                   Цены указаны за базовую комплектацию. Итоговая стоимость зависит от
                   размеров участка, грунта и выбранной гравировки — фиксируется в договоре.
                 </p>
@@ -129,7 +131,6 @@ export const MonumentCatalogSection = () => {
         </div>
       </section>
 
-      {/* Examples */}
       <section className="border-t border-line py-14 sm:py-16">
         <div className="wrap">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
@@ -139,7 +140,7 @@ export const MonumentCatalogSection = () => {
                 Как это выглядит на участке
               </h2>
             </div>
-            <p className="max-w-[38ch] text-[12.5px] leading-relaxed text-dim">
+            <p className="max-w-[38ch] text-[13px] leading-relaxed text-dim">
               Фотографии элементов мемориалов и благоустройства. Точный вид
               согласовываем на 3D-макете.
             </p>
@@ -150,14 +151,14 @@ export const MonumentCatalogSection = () => {
               <Reveal key={item.image} delay={index * 0.06} y={16} blur={7}>
                 <figure>
                   <div className="relative aspect-[4/3] overflow-hidden bg-raise">
-                    <img
-                      src={item.image}
+                    <Picture
+                      name={item.image}
                       alt={item.alt}
-                      loading="lazy" decoding="async"
+                      sizes="(min-width: 640px) 30vw, 92vw"
                       className={`h-full w-full object-cover grayscale ${item.position}`}
                     />
                   </div>
-                  <figcaption className="mt-3 text-[12.5px] text-dim">{item.caption}</figcaption>
+                  <figcaption className="mt-3 text-[13px] text-dim">{item.caption}</figcaption>
                 </figure>
               </Reveal>
             ))}
