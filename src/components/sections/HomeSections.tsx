@@ -45,17 +45,11 @@ export const HomeIntro = () => {
               не меняется по дороге, а сроки установки не зависят от сторонних бригад.
             </p>
 
-            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-7 border-t border-line pt-7">
+            <dl className="mt-8 border-t border-line pt-7">
               <div>
-                <dt className="text-[24px] font-bold leading-none text-paper">РФ</dt>
+                <dt className="text-[24px] font-bold leading-none text-paper">Россия</dt>
                 <dd className="mt-2 text-[13px] leading-snug text-dim">
                   работаем по всей России
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[28px] font-bold leading-none text-paper">7</dt>
-                <dd className="mt-2 text-[13px] leading-snug text-dim">
-                  кладбищ Челябинска в постоянной работе
                 </dd>
               </div>
             </dl>
